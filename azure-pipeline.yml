@@ -30,6 +30,7 @@ stages:
     pool:
       vmImage: $(vmImage)
     steps:
+    - checkout: none
     - task: TerraformInstaller@0
       inputs:
         terraformVersion: $(terraformVersion)
@@ -50,6 +51,7 @@ stages:
     pool:
       vmImage: $(vmImage)
     steps:
+    - checkout: none
     - script: |
         cd $(system.defaultWorkingDirectory)/tf
         terraform init
@@ -72,6 +74,7 @@ stages:
       runOnce:
         deploy:
           steps:
+          - checkout: none
           - script: |
               cd $(system.defaultWorkingDirectory)/tf
               terraform init
