@@ -79,15 +79,15 @@ stages:
     strategy:
       runOnce:
         deploy:
-    steps:
-    - script: |
-        cd $(system.defaultWorkingDirectory)/tf
-        terraform init
-        terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
-      displayName: 'Terraform apply'
-      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
-      env:
-          ARM_TENANT_ID: $(tenantId)
-          ARM_SUBSCRIPTION_ID: $(subscriptionId)
-          ARM_CLIENT_ID: $(clientId)
-          ARM_CLIENT_SECRET: $(clientSecret)
+          steps:
+          - script: |
+              cd $(system.defaultWorkingDirectory)/tf
+              terraform init
+              terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
+            displayName: 'Terraform apply'
+            condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+            env:
+                ARM_TENANT_ID: $(tenantId)
+                ARM_SUBSCRIPTION_ID: $(subscriptionId)
+                ARM_CLIENT_ID: $(clientId)
+                ARM_CLIENT_SECRET: $(clientSecret)
