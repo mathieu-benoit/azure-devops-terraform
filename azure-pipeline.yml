@@ -10,7 +10,8 @@ trigger:
 variables:
   vmImage: 'ubuntu-16.04'
   terraformVersion: 0.12.7
-  artifactName: 'tf-files'
+  tfFilesArtifactName: 'tf-files'
+  tfPlanArtifactName: 'tf-plan'
 
 stages:
 - stage: 'Prepare'
@@ -22,7 +23,7 @@ stages:
       vmImage: $(vmImage)
     steps:
     - publish: '$(system.defaultWorkingDirectory)/tf'
-      artifact: $(artifactName)
+      artifact: $(tfFilesArtifactName)
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
     - task: TerraformInstaller@0
       inputs:
@@ -46,25 +47,25 @@ stages:
     steps:
     - checkout: none
     - download: current
-      artifact: $(artifactName)
+      artifact: $(tfFilesArtifactName)
     - script: |
-        cd $(pipeline.workspace)/$(artifactName)
+        cd $(pipeline.workspace)/$(tfFilesArtifactName)
         terraform init
-        terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
+        terraform plan -out=$(system.defaultWorkingDirectory)/out/tf-plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
       displayName: 'Terraform plan'
       env:
           ARM_TENANT_ID: $(tenantId)
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
+    - publish: '$(system.defaultWorkingDirectory)/out'
+      artifact: $(tfPlanArtifactName)
 - stage: 'Apply_development'
   displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
   - deployment: 'Apply'
-    variables:
-      location: eastus
-      # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
+    # define 5 more variables: clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
     displayName: 'Apply'
     pool:
       vmImage: $(vmImage)
@@ -75,11 +76,11 @@ stages:
           steps:
           - checkout: none
           - download: current
-            artifact: $(artifactName)
+            artifact: $(tfPlanArtifactName)
           - script: |
-              cd $(pipeline.workspace)/$(artifactName)
+              cd $(pipeline.workspace)/$(tfPlanArtifactName)
               terraform init
-              terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
+              terraform apply tf-plan
             displayName: 'Terraform apply'
             env:
                 ARM_TENANT_ID: $(tenantId)
