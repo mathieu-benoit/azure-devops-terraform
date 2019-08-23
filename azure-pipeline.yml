@@ -32,7 +32,7 @@ stages:
         terraform init -backend=false
         terraform validate
       displayName: 'Terraform validate'
-- stage: 'Plan development'
+- stage: 'Plan_development'
   displayName: 'Plan development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
@@ -57,7 +57,7 @@ stages:
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
-- stage: 'Apply development'
+- stage: 'Apply_development'
   displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
