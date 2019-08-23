@@ -80,7 +80,7 @@ stages:
             artifact: $(tfPlanArtifactName)
           - script: |
               cd $(pipeline.workspace)/$(tfPlanArtifactName)
-              ls -la
+              terraform init
               terraform apply tf-plan
             displayName: 'Terraform apply'
             env:
