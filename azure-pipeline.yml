@@ -79,8 +79,12 @@ stages:
           - download: current
             artifact: $(tfPlanArtifactName)
           - script: |
+              echo 'pipeline.workspace:'
+              ls -l $(pipeline.workspace)/$(tfPlanArtifactName)
               mkdir $(system.defaultWorkingDirectory)/$(tfPlanArtifactName)
               cp -r $(pipeline.workspace)/$(tfPlanArtifactName) $(system.defaultWorkingDirectory)/$(tfPlanArtifactName)
+              echo 'system.defaultWorkingDirectory:'
+              ls -l $(system.defaultWorkingDirectory)/$(tfPlanArtifactName)
               terraform apply tf-plan
             workingDirectory: $(system.defaultWorkingDirectory)/$(tfPlanArtifactName)
             displayName: 'Terraform apply'
