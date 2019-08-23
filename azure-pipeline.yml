@@ -9,13 +9,11 @@ trigger:
 
 variables:
   vmImage: 'ubuntu-16.04'
-  location: eastus
   terraformVersion: 0.12.7
-  # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the build pipeline in UI
 
 stages:
 - stage: Prepare
-  displayName: Prepare stage
+  displayName: Prepare
   jobs:
   - job: Prepare
     displayName: Prepare
@@ -25,12 +23,6 @@ stages:
     - publish: '$(system.defaultWorkingDirectory)/tf'
       artifact: 'tf-files'
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
-  - job: Validate
-    displayName: Validate
-    pool:
-      vmImage: $(vmImage)
-    steps:
-    - checkout: none
     - task: TerraformInstaller@0
       inputs:
         terraformVersion: $(terraformVersion)
