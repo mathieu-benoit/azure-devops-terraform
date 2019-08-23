@@ -6,13 +6,6 @@ trigger:
   paths:
     exclude:
     - README.md
-pr:
-  branches:
-    include:
-    - refs/heads/*
-  paths:
-    exclude:
-    - README.md
 
 variables:
   vmImage: 'ubuntu-16.04'
@@ -20,10 +13,10 @@ variables:
   # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the build pipeline in UI
 
 stages:
-- stage: Build
-  displayName: Build stage
+- stage: Prepare
+  displayName: Prepare stage
   jobs:
-  - job: Build
+  - job: Prepare
     variables:
       imageName: 'terraform-agent'
       terraformVersion: 0.12.7
@@ -42,36 +35,30 @@ stages:
         docker push $(registryName)/$(imageName):latest
       displayName: 'docker push'
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
-- stage: Validate
-  displayName: Validate stage
-  jobs:
   - job: Validate
     displayName: Validate
-    container: mabenoit/terraform-agent:latest
     pool:
       vmImage: $(vmImage)
     steps:
     - script: |
-        terraform --version
-        cd $(system.defaultWorkingDirectory)/example
+        cd $(system.defaultWorkingDirectory)/tf
         terraform init -backend=false
         terraform validate
       displayName: 'Terraform validate'
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
-- stage: Plan
-  displayName: Plan stage
+- stage: development
+  displayName: development
   jobs:
   - job: Plan
     variables:
       location: eastus
       # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
     displayName: Plan
-    container: mabenoit/terraform-agent:latest
     pool:
       vmImage: $(vmImage)
     steps:
     - script: |
-        cd $(system.defaultWorkingDirectory)/example
+        cd $(system.defaultWorkingDirectory)/tf
         terraform init
         terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
       displayName: 'Terraform plan'
@@ -81,20 +68,20 @@ stages:
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
-- stage: Apply
-  displayName: Apply stage
-  jobs:
-  - job: Apply
+  - deployment: Apply
     variables:
       location: eastus
       # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
     displayName: Apply
-    container: mabenoit/terraform-agent:latest
     pool:
       vmImage: $(vmImage)
+    environment: "tf-development"
+    strategy:
+      runOnce:
+        deploy:
     steps:
     - script: |
-        cd $(system.defaultWorkingDirectory)/example
+        cd $(system.defaultWorkingDirectory)/tf
         terraform init
         terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
       displayName: 'Terraform apply'
