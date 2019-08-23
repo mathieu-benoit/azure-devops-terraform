@@ -13,11 +13,11 @@ variables:
   artifactName: 'tf-files'
 
 stages:
-- stage: Prepare
-  displayName: Prepare
+- stage: 'Prepare'
+  displayName: 'Prepare'
   jobs:
-  - job: Prepare
-    displayName: Prepare
+  - job: 'Prepare'
+    displayName: 'Prepare'
     pool:
       vmImage: $(vmImage)
     steps:
@@ -32,15 +32,15 @@ stages:
         terraform init -backend=false
         terraform validate
       displayName: 'Terraform validate'
-- stage: Plan development
-  displayName: Plan development
+- stage: 'Plan development'
+  displayName: 'Plan development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
-  - job: Plan
+  - job: 'Plan'
     variables:
-      location: eastus
+      location: 'eastus'
       # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
-    displayName: Plan
+    displayName: 'Plan'
     pool:
       vmImage: $(vmImage)
     steps:
@@ -57,15 +57,15 @@ stages:
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
-- stage: Apply development
-  displayName: Apply development
+- stage: 'Apply development'
+  displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
-  - deployment: Apply
+  - deployment: 'Apply'
     variables:
       location: eastus
       # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
-    displayName: Apply
+    displayName: 'Apply'
     pool:
       vmImage: $(vmImage)
     environment: "tf-development"
