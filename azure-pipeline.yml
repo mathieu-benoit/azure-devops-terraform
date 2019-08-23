@@ -32,8 +32,8 @@ stages:
         terraform init -backend=false
         terraform validate
       displayName: 'Terraform validate'
-- stage: development
-  displayName: development
+- stage: Plan development
+  displayName: Plan development
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
   - job: Plan
@@ -57,8 +57,11 @@ stages:
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
+- stage: Apply development
+  displayName: Apply development
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+  jobs:
   - deployment: Apply
-    dependsOn: Plan
     variables:
       location: eastus
       # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
