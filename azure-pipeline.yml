@@ -48,6 +48,7 @@ stages:
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
 - stage: development
   displayName: development
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
   - job: Plan
     variables:
@@ -62,7 +63,6 @@ stages:
         terraform init
         terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
       displayName: 'Terraform plan'
-      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
       env:
           ARM_TENANT_ID: $(tenantId)
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
@@ -85,7 +85,6 @@ stages:
               terraform init
               terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
             displayName: 'Terraform apply'
-            condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
             env:
                 ARM_TENANT_ID: $(tenantId)
                 ARM_SUBSCRIPTION_ID: $(subscriptionId)
