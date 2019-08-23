@@ -10,6 +10,7 @@ trigger:
 variables:
   vmImage: 'ubuntu-16.04'
   location: eastus
+  terraformVersion: 0.12.7
   # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the build pipeline in UI
 
 stages:
@@ -17,35 +18,26 @@ stages:
   displayName: Prepare stage
   jobs:
   - job: Prepare
-    variables:
-      imageName: 'terraform-agent'
-      terraformVersion: 0.12.7
-      # define 3 more variables: registryName, registryLogin and registryPassword in the pipeline definition UI
-    displayName: terraform docker image build
+    displayName: Prepare
     pool:
       vmImage: $(vmImage)
     steps:
-    - bash: docker build -f $(system.defaultWorkingDirectory)/Dockerfile -t $(registryName)/$(imageName):$(terraformVersion) -t $(registryName)/$(imageName):latest --build-arg TERRAFORM_VERSION=$(terraformVersion) $(system.defaultWorkingDirectory)
-      displayName: 'docker build'
-    - bash: docker login -u $(registryLogin) -p $(registryPassword)
-      displayName: 'docker login'
-      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
-    - bash: |
-        docker push $(registryName)/$(imageName):$(terraformVersion)
-        docker push $(registryName)/$(imageName):latest
-      displayName: 'docker push'
+    - publish: '$(system.defaultWorkingDirectory)/tf'
+      artifact: 'tf-files'
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   - job: Validate
     displayName: Validate
     pool:
       vmImage: $(vmImage)
     steps:
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: $(terraformVersion)
     - script: |
         cd $(system.defaultWorkingDirectory)/tf
         terraform init -backend=false
         terraform validate
       displayName: 'Terraform validate'
-      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
 - stage: development
   displayName: development
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
