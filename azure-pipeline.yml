@@ -48,7 +48,7 @@ stages:
     - download: current
       artifact: $(artifactName)
     - script: |
-        cd $(pipeline.workspace)
+        cd $(pipeline.workspace)/$(artifactName)
         terraform init
         terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
       displayName: 'Terraform plan'
@@ -58,6 +58,7 @@ stages:
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
   - deployment: Apply
+    dependsOn: Plan
     variables:
       location: eastus
       # for release, define 5 more variables: resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
@@ -73,7 +74,7 @@ stages:
           - download: current
             artifact: $(artifactName)
           - script: |
-              cd $(pipeline.workspace)
+              cd $(pipeline.workspace)/$(artifactName)
               terraform init
               terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
             displayName: 'Terraform apply'
