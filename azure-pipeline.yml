@@ -44,8 +44,10 @@ stages:
       vmImage: $(vmImage)
     steps:
     - checkout: none
+    - download: current
+      artifact: 'tf-files'
     - script: |
-        cd $(system.defaultWorkingDirectory)/tf
+        cd $(pipeline.workspace)
         terraform init
         terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
       displayName: 'Terraform plan'
@@ -67,8 +69,10 @@ stages:
         deploy:
           steps:
           - checkout: none
+          - download: current
+            artifact: 'tf-files'
           - script: |
-              cd $(system.defaultWorkingDirectory)/tf
+              cd $(pipeline.workspace)
               terraform init
               terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
             displayName: 'Terraform apply'
