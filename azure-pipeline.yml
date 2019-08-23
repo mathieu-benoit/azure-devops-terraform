@@ -50,16 +50,15 @@ stages:
       artifact: $(tfFilesArtifactName)
     - script: |
         cd $(pipeline.workspace)/$(tfFilesArtifactName)
-        mkdir $(pipeline.workspace)/$(tfFilesArtifactName)/out
         terraform init
-        terraform plan -out=$(pipeline.workspace)/$(tfFilesArtifactName)/out/tf-plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
+        terraform plan -out=tf-plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
       displayName: 'Terraform plan'
       env:
           ARM_TENANT_ID: $(tenantId)
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
-    - publish: '$(pipeline.workspace)/$(tfFilesArtifactName)/out'
+    - publish: '$(pipeline.workspace)/$(tfFilesArtifactName)'
       artifact: $(tfPlanArtifactName)
 - stage: 'Apply_development'
   displayName: 'Apply development'
@@ -80,7 +79,6 @@ stages:
             artifact: $(tfPlanArtifactName)
           - script: |
               cd $(pipeline.workspace)/$(tfPlanArtifactName)
-              terraform init
               terraform apply tf-plan
             displayName: 'Terraform apply'
             env:
