@@ -52,6 +52,7 @@ stages:
         cd $(pipeline.workspace)/$(tfFilesArtifactName)
         terraform init
         terraform plan -out=tf-plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
+        terraform apply tf-plan
       displayName: 'Terraform plan'
       env:
           ARM_TENANT_ID: $(tenantId)
