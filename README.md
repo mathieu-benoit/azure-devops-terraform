@@ -7,3 +7,6 @@ TODO:
 - tf-out?
 - production stage
 - az pipelines create
+
+Resources:
+- https://learn.hashicorp.com/terraform/development/running-terraform-in-automation
