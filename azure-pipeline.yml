@@ -2,7 +2,7 @@ trigger:
   batch: true
   branches:
     include:
-    - master
+    - '*'
   paths:
     exclude:
     - README.md
@@ -29,9 +29,9 @@ stages:
       inputs:
         terraformVersion: $(terraformVersion)
     - script: |
-        cd $(system.defaultWorkingDirectory)/tf
         terraform init -backend=false
         terraform validate
+      workingDirectory: $(system.defaultWorkingDirectory)/tf
       displayName: 'Terraform validate'
 - stage: 'Plan_development'
   displayName: 'Plan development'
@@ -49,10 +49,10 @@ stages:
     - download: current
       artifact: $(tfFilesArtifactName)
     - script: |
-        cd $(pipeline.workspace)/$(tfFilesArtifactName)
         terraform init
         terraform plan -out=tf-plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
         terraform apply tf-plan
+      workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
       displayName: 'Terraform plan'
       env:
           ARM_TENANT_ID: $(tenantId)
@@ -79,8 +79,10 @@ stages:
           - download: current
             artifact: $(tfPlanArtifactName)
           - script: |
-              cd $(pipeline.workspace)/$(tfPlanArtifactName)
+              mkdir $(system.defaultWorkingDirectory)/$(tfPlanArtifactName)
+              cp -r $(pipeline.workspace)/$(tfPlanArtifactName) $(system.defaultWorkingDirectory)/$(tfPlanArtifactName)
               terraform apply tf-plan
+            workingDirectory: $(system.defaultWorkingDirectory)/$(tfPlanArtifactName)
             displayName: 'Terraform apply'
             env:
                 ARM_TENANT_ID: $(tenantId)
