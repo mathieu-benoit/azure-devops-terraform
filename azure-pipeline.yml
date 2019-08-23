@@ -10,6 +10,7 @@ trigger:
 variables:
   vmImage: 'ubuntu-16.04'
   terraformVersion: 0.12.7
+  artifactName: 'tf-files'
 
 stages:
 - stage: Prepare
@@ -21,7 +22,7 @@ stages:
       vmImage: $(vmImage)
     steps:
     - publish: '$(system.defaultWorkingDirectory)/tf'
-      artifact: 'tf-files'
+      artifact: $(artifactName)
       condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
     - task: TerraformInstaller@0
       inputs:
@@ -45,7 +46,7 @@ stages:
     steps:
     - checkout: none
     - download: current
-      artifact: 'tf-files'
+      artifact: $(artifactName)
     - script: |
         cd $(pipeline.workspace)
         terraform init
@@ -70,7 +71,7 @@ stages:
           steps:
           - checkout: none
           - download: current
-            artifact: 'tf-files'
+            artifact: $(artifactName)
           - script: |
               cd $(pipeline.workspace)
               terraform init
