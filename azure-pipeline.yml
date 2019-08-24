@@ -82,6 +82,7 @@ stages:
               mkdir $(tfPlanArtifactName)
               cp -r $(pipeline.workspace)/$(tfPlanArtifactName) $(tfPlanArtifactName)
               cd $(tfPlanArtifactName)
+              ls -l
               terraform apply tf-plan
             workingDirectory: $(system.defaultWorkingDirectory)
             displayName: 'Terraform apply'
