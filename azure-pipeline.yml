@@ -80,7 +80,8 @@ stages:
             artifact: $(tfPlanArtifactName)
           - script: |
               mkdir $(tfPlanArtifactName)
-              cp -r $(pipeline.workspace)/$(tfPlanArtifactName)/* $(tfPlanArtifactName)
+              ls -l $(pipeline.workspace)/$(tfPlanArtifactName)
+              cp -r $(pipeline.workspace)/$(tfPlanArtifactName)/. $(tfPlanArtifactName)
               cd $(tfPlanArtifactName)
               ls -l
               terraform apply tf-plan
