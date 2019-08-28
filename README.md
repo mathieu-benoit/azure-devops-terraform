@@ -6,10 +6,12 @@ In Azure DevOps:
 
 Further considerations:
 - tf-state
-- In `terraform apply` reuse the output of `terraform plan`
-- Add a `Production` stage by cloning the existing `Development` stage
+- Illustrate the workflow with a diagram
 - Leverage the Azure DevOps CLI to create pipeline et variables instead of using the UI
 - Use Azure Key Vault to store secrets to be used by Azure pipelines
+- In `terraform apply` reuse the output of `terraform plan`
+- Add a `Production` stage by cloning the existing `Development` stage
 
 Resources:
-- https://learn.hashicorp.com/terraform/development/running-terraform-in-automation
+- [Running Terraform in Automation
+](https://learn.hashicorp.com/terraform/development/running-terraform-in-automation)
