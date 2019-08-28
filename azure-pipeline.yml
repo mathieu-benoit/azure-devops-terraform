@@ -50,7 +50,6 @@ stages:
     - script: |
         terraform init
         terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
-        terraform apply tf-plan
       workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
       displayName: 'Terraform plan'
       env:
