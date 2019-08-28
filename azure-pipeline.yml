@@ -11,7 +11,6 @@ variables:
   vmImage: 'ubuntu-16.04'
   terraformVersion: 0.12.7
   tfFilesArtifactName: 'tf-files'
-  tfPlanArtifactName: 'tf-plan'
 
 stages:
 - stage: 'Prepare'
@@ -50,7 +49,7 @@ stages:
       artifact: $(tfFilesArtifactName)
     - script: |
         terraform init
-        terraform plan -out=tf-plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
+        terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
         terraform apply tf-plan
       workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
       displayName: 'Terraform plan'
@@ -59,8 +58,6 @@ stages:
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
-    - publish: '$(pipeline.workspace)/$(tfFilesArtifactName)'
-      artifact: $(tfPlanArtifactName)
 - stage: 'Apply_development'
   displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
@@ -77,15 +74,11 @@ stages:
           steps:
           - checkout: none
           - download: current
-            artifact: $(tfPlanArtifactName)
+            artifact: $(tfFilesArtifactName)
           - script: |
-              mkdir $(tfPlanArtifactName)
-              ls -la $(pipeline.workspace)/$(tfPlanArtifactName)
-              cp -r $(pipeline.workspace)/$(tfPlanArtifactName)/. $(tfPlanArtifactName)
-              cd $(tfPlanArtifactName)
-              ls -la
-              terraform apply tf-plan
-            workingDirectory: $(system.defaultWorkingDirectory)
+              terraform init
+              terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
+            workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
             displayName: 'Terraform apply'
             env:
                 ARM_TENANT_ID: $(tenantId)
