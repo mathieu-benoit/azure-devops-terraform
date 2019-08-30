@@ -46,7 +46,7 @@ stages:
     - download: current
       artifact: $(tfFilesArtifactName)
     - script: |
-        terraform init
+        terraform init -backend-config="storage_account_name=$(tfStateStorageAccountName)"
         terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
       workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
       displayName: 'Terraform plan'
@@ -55,6 +55,7 @@ stages:
           ARM_SUBSCRIPTION_ID: $(subscriptionId)
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
+          ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)
 - stage: 'Apply_development'
   displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
@@ -73,7 +74,7 @@ stages:
           - download: current
             artifact: $(tfFilesArtifactName)
           - script: |
-              terraform init
+              terraform init -backend-config="storage_account_name=$(tfStateStorageAccountName)"
               terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
             workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
             displayName: 'Terraform apply'
@@ -82,3 +83,4 @@ stages:
                 ARM_SUBSCRIPTION_ID: $(subscriptionId)
                 ARM_CLIENT_ID: $(clientId)
                 ARM_CLIENT_SECRET: $(clientSecret)
+                ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)
