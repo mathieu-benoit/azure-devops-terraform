@@ -1,4 +1,4 @@
-Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](http://aka.ms/yaml) with [Environment](https://docs.microsoft.com/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema#environment) and [Checks](https://docs.microsoft.com/azure/devops/pipelines/process/checks?view=azure-devops).
+Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](http://aka.ms/yaml) with [Environment](https://docs.microsoft.com/azure/devops/pipelines/yaml-schema#environment) and [Checks](https://docs.microsoft.com/azure/devops/pipelines/process/checks).
 
 # Setup
 
@@ -26,7 +26,7 @@ Note: you may want to either reuse this setup for all your environments (Develop
 ## Azure DevOps
 
 Prerequisites:
-- To be able to leverage the Multi-stage pipelines Preview feature, [you need to turn it on](https://docs.microsoft.com/azure/devops/pipelines/process/stages?view=azure-devops&tabs=yaml).
+- To be able to leverage the Multi-stage pipelines Preview feature, [you need to turn it on](https://docs.microsoft.com/azure/devops/pipelines/process/stages).
 - to be able to install a specific version of Terraform on the agent, [install this Marketplace task](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks)
 
 TODO
@@ -41,6 +41,7 @@ TODO
 
 # Resources
 
-- [Terraform on Azure](https://docs.microsoft.com/azure/terraform/)
+- [Terraform on Azure](https://docs.microsoft.com/azure/terraform)
 - [Running Terraform in Automation
 ](https://learn.hashicorp.com/terraform/development/running-terraform-in-automation)
+- [Find out more about Terraform on Azure](https://cloudblogs.microsoft.com/opensource/tag/terraform)
