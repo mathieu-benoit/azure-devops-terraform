@@ -12,5 +12,6 @@ Further considerations:
 - Add a `Production` stage by cloning the existing `Development` stage
 
 Resources:
+- [Terraform on Azure](https://docs.microsoft.com/azure/terraform/)
 - [Running Terraform in Automation
 ](https://learn.hashicorp.com/terraform/development/running-terraform-in-automation)
