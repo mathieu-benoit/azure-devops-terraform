@@ -37,6 +37,7 @@ TODO
 - Use Azure Key Vault to store secrets to be used by Azure pipelines
 - In `terraform apply` reuse the output of `terraform plan`
 - Add a `Production` stage by cloning the existing `Development` stage
+- You may want to add more Azure services to deploy in the [tf](/tf) folder ;)
 
 # Resources
 
