@@ -27,9 +27,36 @@ Note: you may want to either reuse this setup for all your environments (Develop
 
 Prerequisites:
 - To be able to leverage the Multi-stage pipelines Preview feature, [you need to turn it on](https://docs.microsoft.com/azure/devops/pipelines/process/stages).
-- to be able to install a specific version of Terraform on the agent, [install this Marketplace task](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks)
+- To be able to install a specific version of Terraform on the agent, [install this Marketplace task](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks)
 
-TODO
+To setup Azure pipelines in Azure DevOps we will use the Azure DevOps CLI instead of the UI. For the setup and to login accordingly to your Azure DevOps organization and project, you will need to follow the instructions [here](https://docs.microsoft.com/azure/devops/cli/get-started?view=azure-devops).
+
+Now you will be able to run the bash commands below:
+```
+BUILD_NAME=<your-build-name>
+
+TODO: GitHub service endpoint?
+
+az pipelines create \
+    --name $BUILD_NAME \
+    --repository https://github.com/mathieu-benoit/azure-devops-terraform \
+    --branch master  \
+    --yml-path azure-pipeline.yml \
+    --skip-first-run
+
+az pipelines variable create \
+    --pipeline-name $BUILD_NAME \
+    --name location \
+    --value eastus
+
+az pipelines run 
+
+az pipelines show \
+    --name $BUILD_NAME \
+    --open
+```
+
+Optionaly, you could pause this pipeline by adding a manual approval step on the Environment by setting up a [Check Approval](https://docs.microsoft.com/azure/devops/pipelines/process/checks#approvals). Like defining in my [azure-pipeline.yml](azure-pipeline.yml) file, this manual approval is right after `terraform plan` and right before `terraform apply`, a good way to make sure everything will be deployed as expected.
 
 # Further considerations
 
