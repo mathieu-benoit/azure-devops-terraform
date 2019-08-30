@@ -1,10 +1,5 @@
 Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](http://aka.ms/yaml) with [Environment](https://docs.microsoft.com/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema#environment) and [Checks](https://docs.microsoft.com/azure/devops/pipelines/process/checks?view=azure-devops).
 
-# Prerequisites in Azure DevOps
-
-- to be able to leverage the Multi-stage pipelines Preview feature, [you need to turn it on](https://docs.microsoft.com/azure/devops/pipelines/process/stages?view=azure-devops&tabs=yaml).
-- to be able to install a specific version of Terraform on the agent, [install this Marketplace task](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks)
-
 # Setup
 
 ## Azure Storage for TF state
@@ -25,6 +20,16 @@ echo "storage_account_name: $TFSTATE_STORAGE_ACCOUNT_NAME"
 echo "container_name: $TFSTATE_BLOB_CONTAINER_NAME"
 echo "access_key: $ACCOUNT_KEY"
 ```
+
+Note: you may want to either reuse this setup for all your environments (Development, Production, etc.) or create one per environment.
+
+## Azure DevOps
+
+Prerequisites:
+- To be able to leverage the Multi-stage pipelines Preview feature, [you need to turn it on](https://docs.microsoft.com/azure/devops/pipelines/process/stages?view=azure-devops&tabs=yaml).
+- to be able to install a specific version of Terraform on the agent, [install this Marketplace task](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks)
+
+TODO
 
 # Further considerations
 
