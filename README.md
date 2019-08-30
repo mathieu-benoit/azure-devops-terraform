@@ -12,9 +12,9 @@ Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](htt
 ```
 #!/bin/bash
 
-TFSTATE_RESOURCE_GROUP_NAME=tstate
-TFSTATE_STORAGE_ACCOUNT_NAME=tstate$RANDOM
-TFSTATE_BLOB_CONTAINER_NAME=tstate
+TFSTATE_RESOURCE_GROUP_NAME=tfstate
+TFSTATE_STORAGE_ACCOUNT_NAME=tfstate$RANDOM
+TFSTATE_BLOB_CONTAINER_NAME=tfstate
 
 az group create -n $TFSTATE_RESOURCE_GROUP_NAME -l eastus
 az storage account create -g $TFSTATE_RESOURCE_GROUP_NAME -n $TFSTATE_STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
@@ -28,7 +28,6 @@ echo "access_key: $ACCOUNT_KEY"
 
 # Further considerations
 
-- tf-state
 - Leverage the Azure DevOps CLI to create pipeline et variables instead of using the UI
 - Use Azure Key Vault to store secrets to be used by Azure pipelines
 - In `terraform apply` reuse the output of `terraform plan`
