@@ -6,6 +6,7 @@ trigger:
   paths:
     exclude:
     - README.md
+    - azure-pipeline.png
 
 variables:
   vmImage: 'ubuntu-16.04'
