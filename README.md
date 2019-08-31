@@ -36,23 +36,40 @@ To setup Azure pipelines in Azure DevOps we will use the Azure DevOps CLI instea
 Now you will be able to run the bash commands below:
 ```
 BUILD_NAME=<your-build-name>
+GITHUB_URL=https://github.com/mathieu-benoit/azure-devops-terraform
 
-TODO: GitHub service endpoint?
+#If your source code is in GitHub, you may want to create by CLI your GitHub service endpoint (otherwise via the UI), you will be asked for your GitHub access token.
+SERVICE_ENDPOINT_NAME=azure-devops-terraform
+az devops service-endpoint github create \
+        --name $SERVICE_ENDPOINT_NAME \
+        --github-url $GITHUB_URL
 
 az pipelines create \
     --name $BUILD_NAME \
-    --repository https://github.com/mathieu-benoit/azure-devops-terraform \
+    --repository $GITHUB_URL \
     --branch master  \
     --yml-path azure-pipeline.yml \
+    --service-connection $SERVICE_ENDPOINT_NAME
     --skip-first-run
 
+#Once the pipeline created we need to configure its associated variables
+az pipelines variable create \
+    --pipeline-name $BUILD_NAME \
+    --name location \
+    --value <your-location>
+az pipelines variable create \
+    --pipeline-name $BUILD_NAME \
+    --name resourceGroupName \
+    --value <your-resource-group-name>
 az pipelines variable create \
     --pipeline-name $BUILD_NAME \
     --name location \
     --value eastus
 
+#Let's run our first build!
 az pipelines run 
 
+#You may want to open this pipeline definition via the UI to track him
 az pipelines show \
     --name $BUILD_NAME \
     --open
