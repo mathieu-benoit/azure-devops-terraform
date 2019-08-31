@@ -52,7 +52,7 @@ az pipelines create \
     --service-connection $SERVICE_ENDPOINT_NAME
     --skip-first-run
 
-#Once the pipeline created we need to configure its associated variables
+#Once the pipeline is created we need to configure its associated variables
 az pipelines variable create \
     --pipeline-name $BUILD_NAME \
     --name location \
@@ -67,7 +67,9 @@ az pipelines variable create \
     --value eastus
 
 #Let's run our first build!
-az pipelines run 
+az pipelines run \
+    --name $BUILD_NAME \
+    --open
 
 #You may want to open this pipeline definition via the UI to track him
 az pipelines show \
