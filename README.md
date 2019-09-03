@@ -4,7 +4,7 @@ Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](htt
 
 # Setup
 
-## Azure Storage for TF state
+## Setup Azure Storage for TF state
 
 ```
 #!/bin/bash
@@ -15,17 +15,26 @@ TFSTATE_BLOB_CONTAINER_NAME=tfstate
 
 az group create -n $TFSTATE_RESOURCE_GROUP_NAME -l eastus
 az storage account create -g $TFSTATE_RESOURCE_GROUP_NAME -n $TFSTATE_STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
-ACCOUNT_KEY=$(az storage account keys list -g $TFSTATE_RESOURCE_GROUP_NAME --account-name $TFSTATE_STORAGE_ACCOUNT_NAME --query [0].value -o tsv)
-az storage container create -n $TFSTATE_BLOB_CONTAINER_NAME --account-name $TFSTATE_STORAGE_ACCOUNT_NAME --account-key $ACCOUNT_KEY
-
-echo "storage_account_name: $TFSTATE_STORAGE_ACCOUNT_NAME"
-echo "container_name: $TFSTATE_BLOB_CONTAINER_NAME"
-echo "access_key: $ACCOUNT_KEY"
+TFSTATE_STORAGE_ACCOUNT_KEY=$(az storage account keys list -g $TFSTATE_RESOURCE_GROUP_NAME --account-name $TFSTATE_STORAGE_ACCOUNT_NAME --query [0].value -o tsv)
+az storage container create -n $TFSTATE_BLOB_CONTAINER_NAME --account-name $TFSTATE_STORAGE_ACCOUNT_NAME --account-key $TFSTATE_STORAGE_ACCOUNT_KEY
 ```
 
 Note: you may want to either reuse this setup for all your environments (Development, Production, etc.) or create one per environment.
 
-## Azure DevOps
+## Setup Terraform access to Azure
+
+When Terraform will deploy your Azure resources,it will need the appropriate rights to talk to Azure and perform such actions, [this tutorial](https://docs.microsoft.com/azure/virtual-machines/linux/terraform-install-configure) provides the details of this configuration you need to do. Below are the commands extracted from there to be able to reuse the different values necessary for further setups.
+
+```
+TENANT_ID==$(az account show --query tenantId -o tsv)
+SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+spName=tf-sp
+TF_SP_SECRET=$(az ad sp create-for-rbac -n $spName --role Contributor --query password -o tsv)
+TF_SP_ID=$(az ad sp show --id http://$spName --query appId -o tsv)
+```
+
+## Setup Azure DevOps
 
 Prerequisites:
 - To be able to leverage the Multi-stage pipelines Preview feature, [you need to turn it on](https://docs.microsoft.com/azure/devops/pipelines/process/stages).
@@ -63,8 +72,28 @@ az pipelines variable create \
     --value <your-resource-group-name>
 az pipelines variable create \
     --pipeline-name $BUILD_NAME \
-    --name location \
-    --value eastus
+    --name clientId \
+    --value $TF_SP_ID
+az pipelines variable create \
+    --pipeline-name $BUILD_NAME \
+    --name clientSecret \
+    --value $TF_SP_SECRET
+az pipelines variable create \
+    --pipeline-name $BUILD_NAME \
+    --name tenantId \
+    --value $TENANT_ID
+az pipelines variable create \
+    --pipeline-name $BUILD_NAME \
+    --name subscriptionId \
+    --value $SUBSCRIPTION_ID
+az pipelines variable create \
+    --pipeline-name $BUILD_NAME \
+    --name tfStateStorageAccountAccessKey \
+    --value $TFSTATE_STORAGE_ACCOUNT_KEY
+az pipelines variable create \
+    --pipeline-name $BUILD_NAME \
+    --name tfStateStorageAccountName \
+    --value TFSTATE_STORAGE_ACCOUNT_NAME
 
 #Let's run our first build!
 az pipelines run \
