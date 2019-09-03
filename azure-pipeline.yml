@@ -36,6 +36,10 @@ stages:
 - stage: 'Plan_development'
   displayName: 'Plan development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+  variables:
+    - group: tf-sp-group
+    - group: tf-state-group
+    - group: tf-deployment-group
   jobs:
   - job: 'Plan'
     displayName: 'Plan'
@@ -59,6 +63,10 @@ stages:
 - stage: 'Apply_development'
   displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+  variables:
+    - group: tf-sp-group
+    - group: tf-state-group
+    - group: tf-deployment-group
   jobs:
   - deployment: 'Apply'
     displayName: 'Apply'
