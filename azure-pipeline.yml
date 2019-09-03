@@ -38,7 +38,6 @@ stages:
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
   - job: 'Plan'
-    # for release, define 6 more variables: location, resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
     displayName: 'Plan'
     pool:
       vmImage: $(vmImage)
@@ -62,7 +61,6 @@ stages:
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   jobs:
   - deployment: 'Apply'
-    # define 6 more variables: location, resourceGroupName, clientId, clientSecret, subscriptionId and tenantId in the pipeline definition UI
     displayName: 'Apply'
     pool:
       vmImage: $(vmImage)
