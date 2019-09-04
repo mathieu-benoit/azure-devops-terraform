@@ -61,24 +61,16 @@ az pipelines create \
     --service-connection $SERVICE_ENDPOINT_NAME
     --skip-first-run
 
-#Once the pipeline is created we need to configure its associated variables
+#Once the pipeline is created we need to configure its associated variables, by creating 3 different Variables Groups:
 az pipelines variable-group create \
 	--name tf-sp-group \
-	--variables \
-		clientId=$TF_SP_ID \
-		clientSecret=$TF_SP_SECRET \
-		tenantId=$TENANT_ID \
-		subscriptionId=$SUBSCRIPTION_ID
+	--variables clientId=$TF_SP_ID clientSecret=$TF_SP_SECRET tenantId=$TENANT_ID subscriptionId=$SUBSCRIPTION_ID
 az pipelines variable-group create \
 	--name tf-state-group \
-	--variables \
-		tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY \
-		tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME
+	--variables tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME
 az pipelines variable-group create \
 	--name tf-deployment-group \
-	--variables \
-		location=<your-location-value> \
-		resourceGroupName=<your-resource-group-name-value>
+	--variables location=<your-location-value> resourceGroupName=<your-resource-group-name-value>
 
 #Let's run our first build!
 az pipelines run \
