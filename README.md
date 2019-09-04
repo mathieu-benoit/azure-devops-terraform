@@ -1,3 +1,7 @@
+| Branch | Status |
+|--------|--------|
+| master |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/terraform?branchName=master)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=102&branchName=master)|
+
 Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](http://aka.ms/yaml) with [Environment](https://docs.microsoft.com/azure/devops/pipelines/yaml-schema#environment) and [Checks](https://docs.microsoft.com/azure/devops/pipelines/process/checks).
 
 ![Azure pipeline](/azure-pipeline.png)
@@ -90,9 +94,9 @@ Optionaly, you could pause this pipeline by adding a manual approval step on the
 
 # Further considerations
 
-- Use Azure Key Vault to store secrets to be used by Azure pipelines
+- Use Azure Key Vault to store secrets to be used by Azure pipelines, you could easily [leverage Azure KeyVault from Variable Groups](https://docs.microsoft.com/azure/devops/pipelines/library/variable-groups?view=azure-devops&tabs=yaml#link-secrets-from-an-azure-key-vault)
 - In `terraform apply` reuse the output of `terraform plan`
-- Add a `Production` stage by cloning the existing `Development` stage
+- Add `Production` stages by cloning the existing `Development` stages
 - You may want to add more Azure services to deploy in the [tf](/tf) folder ;)
 
 # Resources
