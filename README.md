@@ -62,38 +62,23 @@ az pipelines create \
     --skip-first-run
 
 #Once the pipeline is created we need to configure its associated variables
-az pipelines variable create \
-    --pipeline-name $BUILD_NAME \
-    --name location \
-    --value <your-location>
-az pipelines variable create \
-    --pipeline-name $BUILD_NAME \
-    --name resourceGroupName \
-    --value <your-resource-group-name>
-az pipelines variable create \
-    --pipeline-name $BUILD_NAME \
-    --name clientId \
-    --value $TF_SP_ID
-az pipelines variable create \
-    --pipeline-name $BUILD_NAME \
-    --name clientSecret \
-    --value $TF_SP_SECRET
-az pipelines variable create \
-    --pipeline-name $BUILD_NAME \
-    --name tenantId \
-    --value $TENANT_ID
-az pipelines variable create \
-    --pipeline-name $BUILD_NAME \
-    --name subscriptionId \
-    --value $SUBSCRIPTION_ID
-az pipelines variable create \
-    --pipeline-name $BUILD_NAME \
-    --name tfStateStorageAccountAccessKey \
-    --value $TFSTATE_STORAGE_ACCOUNT_KEY
-az pipelines variable create \
-    --pipeline-name $BUILD_NAME \
-    --name tfStateStorageAccountName \
-    --value TFSTATE_STORAGE_ACCOUNT_NAME
+az pipelines variable-group create \
+	--name tf-sp-group \
+	--variables \
+		clientId=$TF_SP_ID \
+		clientSecret=$TF_SP_SECRET \
+		tenantId=$TENANT_ID \
+		subscriptionId=$SUBSCRIPTION_ID
+az pipelines variable-group create \
+	--name tf-state-group \
+	--variables \
+		tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY \
+		tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME
+az pipelines variable-group create \
+	--name tf-deployment-group \
+	--variables \
+		location=<your-location-value> \
+		resourceGroupName=<your-resource-group-name-value>
 
 #Let's run our first build!
 az pipelines run \
