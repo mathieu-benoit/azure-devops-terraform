@@ -83,6 +83,7 @@ stages:
           - script: |
               terraform init -backend-config="storage_account_name=$(tfStateStorageAccountName)"
               terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
+              terraform output resource_group_id
             workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
             displayName: 'Terraform apply'
             env:
