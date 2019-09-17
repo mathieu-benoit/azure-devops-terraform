@@ -30,7 +30,7 @@ Note: you may want to either reuse this setup for all your environments (Develop
 When Terraform will deploy your Azure resources,it will need the appropriate rights to talk to Azure and perform such actions, [this tutorial](https://docs.microsoft.com/azure/virtual-machines/linux/terraform-install-configure) provides the details of this configuration you need to do. Below are the commands extracted from there to be able to reuse the different values necessary for further setups.
 
 ```
-TENANT_ID==$(az account show --query tenantId -o tsv)
+TENANT_ID=$(az account show --query tenantId -o tsv)
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
 spName=tf-sp
