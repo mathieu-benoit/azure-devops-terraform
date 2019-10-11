@@ -86,7 +86,7 @@ az pipelines run \
     --name $BUILD_NAME \
     --open
 
-#You may want to open this pipeline definition via the UI to track him
+#You may want to open this pipeline definition via the UI to track it
 az pipelines show \
     --name $BUILD_NAME \
     --open
