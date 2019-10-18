@@ -10,7 +10,7 @@ trigger:
 
 variables:
   vmImage: 'ubuntu-16.04'
-  terraformVersion: 0.12.11
+  terraformVersion: 0.12.12
   tfFilesArtifactName: 'tf-files'
 
 stages:
