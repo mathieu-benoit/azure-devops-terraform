@@ -35,11 +35,12 @@ stages:
       displayName: 'Terraform validate'
 - stage: 'Plan_development'
   displayName: 'Plan development'
-  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   variables:
-    - group: tf-sp-group
-    - group: tf-state-group
-    - group: tf-deployment-group
+    - name: environment
+      value: dev
+    - group: tf-sp-group-$(environment)
+    - group: tf-state-group-$(environment)
+    - group: tf-deployment-group-$(environment)
   jobs:
   - job: 'Plan'
     displayName: 'Plan'
@@ -64,15 +65,17 @@ stages:
   displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   variables:
-    - group: tf-sp-group
-    - group: tf-state-group
-    - group: tf-deployment-group
+    - name: environment
+      value: dev
+    - group: tf-sp-group-$(environment)
+    - group: tf-state-group-$(environment)
+    - group: tf-deployment-group-$(environment)
   jobs:
   - deployment: 'Apply'
     displayName: 'Apply'
     pool:
       vmImage: $(vmImage)
-    environment: "tf-development"
+    environment: tf-$(environment)
     strategy:
       runOnce:
         deploy:
