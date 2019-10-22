@@ -13,9 +13,10 @@ Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](htt
 ```
 #!/bin/bash
 
-TFSTATE_RESOURCE_GROUP_NAME=tfstate
-TFSTATE_STORAGE_ACCOUNT_NAME=tfstate$RANDOM
-TFSTATE_BLOB_CONTAINER_NAME=tfstate
+environment=dev
+TFSTATE_RESOURCE_GROUP_NAME=tfstate-$environment
+TFSTATE_STORAGE_ACCOUNT_NAME=tfstate$RANDOM$environment
+TFSTATE_BLOB_CONTAINER_NAME=tfstate-$environment
 
 az group create -n $TFSTATE_RESOURCE_GROUP_NAME -l eastus
 az storage account create -g $TFSTATE_RESOURCE_GROUP_NAME -n $TFSTATE_STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
@@ -25,7 +26,7 @@ az storage container create -n $TFSTATE_BLOB_CONTAINER_NAME --account-name $TFST
 az group lock create --lock-type CanNotDelete -n CanNotDelete -g $TFSTATE_RESOURCE_GROUP_NAME
 ```
 
-Note: you may want to either reuse this setup for all your environments (Development, Production, etc.) or create one per environment.
+> Note: You could repeat this setup above per `environment`: QA, PROD, etc. That's a best practice to leverage different resources per environment, having more granular RBAC controls, etc.
 
 ## Setup Terraform access to Azure
 
@@ -35,10 +36,13 @@ When Terraform will deploy your Azure resources,it will need the appropriate rig
 TENANT_ID=$(az account show --query tenantId -o tsv)
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-spName=tf-sp
+environment=dev
+spName=tf-sp-$environment
 TF_SP_SECRET=$(az ad sp create-for-rbac -n $spName --role Contributor --query password -o tsv)
 TF_SP_ID=$(az ad sp show --id http://$spName --query appId -o tsv)
 ```
+
+> Note: You could repeat this setup above per `environment`: QA, PROD, etc. That's a best practice to leverage different resources per environment, having more granular RBAC controls, etc.
 
 ## Setup Azure DevOps
 
@@ -68,16 +72,17 @@ az pipelines create \
     --skip-first-run
 
 #Once the pipeline is created we need to configure its associated variables, by creating 3 different Variables Groups:
+environment=dev
 az pipelines variable-group create \
-	--name tf-sp-group \
+	--name tf-sp-group-$environment \
 	--authorize true \
 	--variables clientId=$TF_SP_ID clientSecret=$TF_SP_SECRET tenantId=$TENANT_ID subscriptionId=$SUBSCRIPTION_ID
 az pipelines variable-group create \
-	--name tf-state-group \
+	--name tf-state-group-$environment \
 	--authorize true \
-	--variables tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME
+	--variables tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME tfStateStorageContainerName=$TFSTATE_BLOB_CONTAINER_NAME
 az pipelines variable-group create \
-	--name tf-deployment-group \
+	--name tf-deployment-group-$environment \
 	--authorize true \
 	--variables location=<your-location-value> resourceGroupName=<your-resource-group-name-value>
 
@@ -92,13 +97,14 @@ az pipelines show \
     --open
 ```
 
+> Note: You could repeat this Variable Groups setup above per `environment`: QA, PROD, etc.
+
 Optionaly, you could pause this pipeline by adding a manual approval step on the Environment by setting up a [Check Approval](https://docs.microsoft.com/azure/devops/pipelines/process/checks#approvals). Like defining in my [azure-pipeline.yml](azure-pipeline.yml) file, this manual approval is right after `terraform plan` and right before `terraform apply`, a good way to make sure everything will be deployed as expected.
 
 # Further considerations
 
 - Use Azure Key Vault to store secrets to be used by Azure pipelines, you could easily [leverage Azure KeyVault from Variable Groups](https://docs.microsoft.com/azure/devops/pipelines/library/variable-groups?view=azure-devops&tabs=yaml#link-secrets-from-an-azure-key-vault)
 - In `terraform apply` reuse the output of `terraform plan`
-- Add `Production` stages by cloning the existing `Development` stages
 - You may want to add more Azure services to deploy in the [tf](/tf) folder ;)
 
 # Resources

@@ -29,17 +29,18 @@ stages:
       inputs:
         terraformVersion: $(terraformVersion)
     - script: |
-        terraform init -backend=false
+        terraform init \
+            -backend=false
         terraform validate
       workingDirectory: $(system.defaultWorkingDirectory)/tf
       displayName: 'Terraform validate'
 - stage: 'Plan_development'
-  displayName: 'Plan development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
+  displayName: 'Plan development'
   variables:
-    - group: tf-sp-group
-    - group: tf-state-group
-    - group: tf-deployment-group
+    - group: tf-sp-group-dev
+    - group: tf-state-group-dev
+    - group: tf-deployment-group-dev
   jobs:
   - job: 'Plan'
     displayName: 'Plan'
@@ -50,8 +51,12 @@ stages:
     - download: current
       artifact: $(tfFilesArtifactName)
     - script: |
-        terraform init -backend-config="storage_account_name=$(tfStateStorageAccountName)"
-        terraform plan -var resource_group_name=$(resourceGroupName) -var location=$(location)
+        terraform init \
+            -backend-config="storage_account_name=$(tfStateStorageAccountName)" \
+            -backend-config="container_name=$(tfStateStorageContainerName)"
+        terraform plan \
+            -var resource_group_name=$(resourceGroupName) \
+            -var location=$(location)
       workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
       displayName: 'Terraform plan'
       env:
@@ -64,15 +69,15 @@ stages:
   displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   variables:
-    - group: tf-sp-group
-    - group: tf-state-group
-    - group: tf-deployment-group
+    - group: tf-sp-group-dev
+    - group: tf-state-group-dev
+    - group: tf-deployment-group-dev
   jobs:
   - deployment: 'Apply'
     displayName: 'Apply'
     pool:
       vmImage: $(vmImage)
-    environment: "tf-development"
+    environment: tf-dev
     strategy:
       runOnce:
         deploy:
@@ -81,8 +86,13 @@ stages:
           - download: current
             artifact: $(tfFilesArtifactName)
           - script: |
-              terraform init -backend-config="storage_account_name=$(tfStateStorageAccountName)"
-              terraform apply -auto-approve -var resource_group_name=$(resourceGroupName) -var location=$(location)
+              terraform init \
+                  -backend-config="storage_account_name=$(tfStateStorageAccountName)" \
+                  -backend-config="container_name=$(tfStateStorageContainerName)"
+              terraform apply \
+                  -auto-approve \
+                  -var resource_group_name=$(resourceGroupName) \
+                  -var location=$(location)
               terraform output resource_group_id
             workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
             displayName: 'Terraform apply'
