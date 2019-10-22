@@ -35,6 +35,7 @@ stages:
       workingDirectory: $(system.defaultWorkingDirectory)/tf
       displayName: 'Terraform validate'
 - stage: 'Plan_development'
+  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   displayName: 'Plan development'
   variables:
     - group: tf-sp-group-dev
@@ -51,7 +52,8 @@ stages:
       artifact: $(tfFilesArtifactName)
     - script: |
         terraform init \
-            -backend-config="storage_account_name=$(tfStateStorageAccountName)"
+            -backend-config="storage_account_name=$(tfStateStorageAccountName)" \
+            -backend-config="container_name=$(tfStateStorageContainerName)"
         terraform plan \
             -var resource_group_name=$(resourceGroupName) \
             -var location=$(location)
@@ -67,8 +69,6 @@ stages:
   displayName: 'Apply development'
   condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   variables:
-    - name: environment
-      value: dev
     - group: tf-sp-group-dev
     - group: tf-state-group-dev
     - group: tf-deployment-group-dev
@@ -87,7 +87,8 @@ stages:
             artifact: $(tfFilesArtifactName)
           - script: |
               terraform init \
-                  -backend-config="storage_account_name=$(tfStateStorageAccountName)"
+                  -backend-config="storage_account_name=$(tfStateStorageAccountName)" \
+                  -backend-config="container_name=$(tfStateStorageContainerName)"
               terraform apply \
                   -auto-approve \
                   -var resource_group_name=$(resourceGroupName) \
