@@ -80,7 +80,7 @@ az pipelines variable-group create \
 az pipelines variable-group create \
 	--name tf-state-group-$environment \
 	--authorize true \
-	--variables tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME
+	--variables tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME tfStateStorageContainerName=$TFSTATE_BLOB_CONTAINER_NAME
 az pipelines variable-group create \
 	--name tf-deployment-group-$environment \
 	--authorize true \
