@@ -7,11 +7,14 @@ trigger:
     exclude:
     - README.md
     - azure-pipeline.png
+    
+pr: none
 
 variables:
   vmImage: 'ubuntu-16.04'
   terraformVersion: 0.12.16
   tfFilesArtifactName: 'tf-files'
+  tfPlanArtifactName: 'tf-plan'
 
 stages:
 - stage: 'Prepare'
@@ -24,7 +27,6 @@ stages:
     steps:
     - publish: '$(system.defaultWorkingDirectory)/tf'
       artifact: $(tfFilesArtifactName)
-      condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
     - task: TerraformInstaller@0
       inputs:
         terraformVersion: $(terraformVersion)
@@ -35,7 +37,6 @@ stages:
       workingDirectory: $(system.defaultWorkingDirectory)/tf
       displayName: 'Terraform validate'
 - stage: 'Plan_development'
-  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   displayName: 'Plan development'
   variables:
     - group: tf-sp-group-dev
@@ -56,7 +57,9 @@ stages:
             -backend-config="container_name=$(tfStateStorageContainerName)"
         terraform plan \
             -var resource_group_name=$(resourceGroupName) \
-            -var location=$(location)
+            -var location=$(location) \
+            -out=tf-plan
+         ls -l
       workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
       displayName: 'Terraform plan'
       env:
@@ -65,13 +68,13 @@ stages:
           ARM_CLIENT_ID: $(clientId)
           ARM_CLIENT_SECRET: $(clientSecret)
           ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)
+    - publish: '$(pipeline.workspace)/$(tfFilesArtifactName)'
+      artifact: $(tfPlanArtifactName)
 - stage: 'Apply_development'
   displayName: 'Apply development'
-  condition: and(succeeded(), eq(variables['build.sourceBranch'], 'refs/heads/master'))
   variables:
     - group: tf-sp-group-dev
     - group: tf-state-group-dev
-    - group: tf-deployment-group-dev
   jobs:
   - deployment: 'Apply'
     displayName: 'Apply'
@@ -84,17 +87,13 @@ stages:
           steps:
           - checkout: none
           - download: current
-            artifact: $(tfFilesArtifactName)
+            artifact: $(tfPlanArtifactName)
           - script: |
-              terraform init \
-                  -backend-config="storage_account_name=$(tfStateStorageAccountName)" \
-                  -backend-config="container_name=$(tfStateStorageContainerName)"
-              terraform apply \
-                  -auto-approve \
-                  -var resource_group_name=$(resourceGroupName) \
-                  -var location=$(location)
+              ls -l
+              chmod +x .terraform/plugins/linux_amd64/terraform-provider-azurerm_v1.*
+              terraform apply tf-plan
               terraform output resource_group_id
-            workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
+            workingDirectory: $(pipeline.workspace)/$(tfPlanArtifactName)
             displayName: 'Terraform apply'
             env:
                 ARM_TENANT_ID: $(tenantId)

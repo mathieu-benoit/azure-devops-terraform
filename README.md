@@ -104,7 +104,6 @@ Optionaly, you could pause this pipeline by adding a manual approval step on the
 # Further considerations
 
 - Use Azure Key Vault to store secrets to be used by Azure pipelines, you could easily [leverage Azure KeyVault from Variable Groups](https://docs.microsoft.com/azure/devops/pipelines/library/variable-groups?view=azure-devops&tabs=yaml#link-secrets-from-an-azure-key-vault)
-- In `terraform apply` reuse the output of `terraform plan`
 - You may want to add more Azure services to deploy in the [tf](/tf) folder ;)
 
 # Resources
