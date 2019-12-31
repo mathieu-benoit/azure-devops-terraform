@@ -12,7 +12,7 @@ pr: none
 
 variables:
   vmImage: 'ubuntu-16.04'
-  terraformVersion: 0.12.16
+  terraformVersion: 0.12.18
   tfFilesArtifactName: 'tf-files'
   tfPlanArtifactName: 'tf-plan'
 
