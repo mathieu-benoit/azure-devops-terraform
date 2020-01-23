@@ -11,8 +11,8 @@ trigger:
 pr: none
 
 variables:
-  vmImage: 'ubuntu-16.04'
-  terraformVersion: 0.12.19
+  vmImage: 'ubuntu-18.04'
+  terraformVersion: 0.12.20
   tfFilesArtifactName: 'tf-files'
   tfPlanArtifactName: 'tf-plan'
 
@@ -31,6 +31,7 @@ stages:
       inputs:
         terraformVersion: $(terraformVersion)
     - script: |
+        terraform -version
         terraform init \
             -backend=false
         terraform validate
