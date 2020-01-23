@@ -1,6 +1,6 @@
 | Branch | Status |
 |--------|--------|
-| master |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/terraform?branchName=master)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=102&branchName=master)|
+| master |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/azure-devops-terraform?branchName=master)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=113&branchName=master)|
 
 Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](http://aka.ms/yaml) with [Environment](https://docs.microsoft.com/azure/devops/pipelines/yaml-schema#environment) and [Checks](https://docs.microsoft.com/azure/devops/pipelines/process/checks).
 
