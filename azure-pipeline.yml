@@ -31,7 +31,6 @@ stages:
       inputs:
         terraformVersion: $(terraformVersion)
     - script: |
-        terraform -version
         terraform init \
             -backend=false
         terraform validate
@@ -53,6 +52,9 @@ stages:
     - checkout: none
     - download: current
       artifact: $(tfFilesArtifactName)
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: $(terraformVersion)
     - script: |
         terraform -version
         terraform init \
@@ -92,6 +94,9 @@ stages:
           - checkout: none
           - download: current
             artifact: $(tfPlanArtifactName)
+          - task: TerraformInstaller@0
+            inputs:
+              terraformVersion: $(terraformVersion)
           - script: |
               ls -l
               chmod +x .terraform/plugins/linux_amd64/terraform-provider-azurerm_v1.*
