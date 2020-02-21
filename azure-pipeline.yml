@@ -12,9 +12,12 @@ pr: none
 
 variables:
   vmImage: 'ubuntu-latest'
-  terraformVersion: 0.12.20
+  terraformVersion: 0.12.21
   tfFilesArtifactName: 'tf-files'
   tfPlanArtifactName: 'tf-plan'
+  
+pool:
+ vmImage: $(vmImage)
 
 stages:
 - stage: 'Prepare'
@@ -22,8 +25,8 @@ stages:
   jobs:
   - job: 'Prepare'
     displayName: 'Prepare'
-    pool:
-      vmImage: $(vmImage)
+    #pool:
+    #  vmImage: $(vmImage)
     steps:
     - publish: '$(system.defaultWorkingDirectory)/tf'
       artifact: $(tfFilesArtifactName)
@@ -46,8 +49,8 @@ stages:
   jobs:
   - job: 'Plan'
     displayName: 'Plan'
-    pool:
-      vmImage: $(vmImage)
+    #pool:
+    #  vmImage: $(vmImage)
     steps:
     - checkout: none
     - download: current
@@ -84,8 +87,8 @@ stages:
   jobs:
   - deployment: 'Apply'
     displayName: 'Apply'
-    pool:
-      vmImage: $(vmImage)
+    #pool:
+    #  vmImage: $(vmImage)
     environment: tf-dev
     strategy:
       runOnce:
