@@ -11,7 +11,7 @@ trigger:
 pr: none
 
 variables:
-  vmImage: 'ubuntu-16.04'
+  vmImage: 'ubuntu-latest'
   terraformVersion: 0.12.20
   tfFilesArtifactName: 'tf-files'
   tfPlanArtifactName: 'tf-plan'
@@ -99,7 +99,7 @@ stages:
               terraformVersion: $(terraformVersion)
           - script: |
               ls -l
-              chmod +x .terraform/plugins/linux_amd64/terraform-provider-azurerm_v1.*
+              chmod +x .terraform/plugins/linux_amd64/terraform-provider-*
               terraform apply tf-plan
               terraform output resource_group_id
             workingDirectory: $(pipeline.workspace)/$(tfPlanArtifactName)
