@@ -11,7 +11,7 @@ trigger:
 pr: none
 
 variables:
-  terraformVersion: 0.12.21
+  #terraformVersion: 0.12.21
   tfFilesArtifactName: 'tf-files'
   tfPlanArtifactName: 'tf-plan'
   
@@ -28,9 +28,9 @@ stages:
     steps:
     - publish: '$(system.defaultWorkingDirectory)/tf'
       artifact: $(tfFilesArtifactName)
-    - task: TerraformInstaller@0
-      inputs:
-        terraformVersion: $(terraformVersion)
+    #- task: TerraformInstaller@0
+    #  inputs:
+    #    terraformVersion: $(terraformVersion)
     - script: |
         terraform init \
             -backend=false
@@ -51,9 +51,9 @@ stages:
     - checkout: none
     - download: current
       artifact: $(tfFilesArtifactName)
-    - task: TerraformInstaller@0
-      inputs:
-        terraformVersion: $(terraformVersion)
+    #- task: TerraformInstaller@0
+    #  inputs:
+    #    terraformVersion: $(terraformVersion)
     - script: |
         terraform -version
         terraform init \
@@ -92,9 +92,9 @@ stages:
           - checkout: none
           - download: current
             artifact: $(tfPlanArtifactName)
-          - task: TerraformInstaller@0
-            inputs:
-              terraformVersion: $(terraformVersion)
+          #- task: TerraformInstaller@0
+          #  inputs:
+          #    terraformVersion: $(terraformVersion)
           - script: |
               ls -l
               chmod +x .terraform/plugins/linux_amd64/terraform-provider-*
