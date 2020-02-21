@@ -64,7 +64,6 @@ stages:
             -var resource_group_name=$(resourceGroupName) \
             -var location=$(location) \
             -out=tf-plan
-         ls -l
       workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
       failOnStderr: true
       displayName: 'Terraform plan'
@@ -96,7 +95,6 @@ stages:
           #  inputs:
           #    terraformVersion: $(terraformVersion)
           - script: |
-              ls -l
               chmod +x .terraform/plugins/linux_amd64/terraform-provider-*
               terraform apply tf-plan
               terraform output resource_group_id
