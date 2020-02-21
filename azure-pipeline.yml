@@ -11,13 +11,13 @@ trigger:
 pr: none
 
 variables:
-  vmImage: 'ubuntu-latest'
   terraformVersion: 0.12.21
   tfFilesArtifactName: 'tf-files'
   tfPlanArtifactName: 'tf-plan'
   
 pool:
- vmImage: $(vmImage)
+ #vmImage: 'ubuntu-latest'
+ name: myadoagent
 
 stages:
 - stage: 'Prepare'
