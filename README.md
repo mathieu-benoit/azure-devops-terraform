@@ -112,4 +112,5 @@ Optionaly, you could pause this pipeline by adding a manual approval step on the
 - [Running Terraform in Automation
 ](https://learn.hashicorp.com/terraform/development/running-terraform-in-automation)
 - [Cloud Native Azure Infrastructure Deployment Using Terraform](https://www.hashicorp.com/resources/cloud-native-azure-infrastructure-deployment-using-terraform)
+- [Microsoft Learn - Provision infrastructure in Azure Pipelines](https://docs.microsoft.com/learn/modules/provision-infrastructure-azure-pipelines/)
 - [Find out more about Terraform on Azure](https://cloudblogs.microsoft.com/opensource/tag/terraform)
