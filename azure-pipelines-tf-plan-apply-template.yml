@@ -1,0 +1,77 @@
+parameters:
+  environment: test
+
+stages:
+- stage: plan_${{ parameters.environment }}
+  displayName: plan ${{ parameters.environment }}
+  variables:
+    - name: tfPlanArtifactName
+      value: tf-plan-${{ parameters.environment }}
+    - group: tf-sp-group-${{ parameters.environment }}
+    - group: tf-state-group-${{ parameters.environment }}
+    - group: tf-deployment-group-${{ parameters.environment }}
+  jobs:
+  - job: 'plan'
+    displayName: 'plan'
+    steps:
+    - checkout: none
+    - download: current
+      artifact: $(tfFilesArtifactName)
+    - task: TerraformInstaller@0
+      inputs:
+        terraformVersion: $(terraformVersion)
+    - script: |
+        terraform -version
+        terraform init \
+            -backend-config="storage_account_name=$(tfStateStorageAccountName)" \
+            -backend-config="container_name=$(tfStateStorageContainerName)"
+        chmod +x .terraform/plugins/linux_amd64/terraform-provider-*
+        terraform plan \
+            -var resource_group_name=$(resourceGroupName) \
+            -var location=$(location) \
+            -out=tf-plan
+      workingDirectory: $(pipeline.workspace)/$(tfFilesArtifactName)
+      failOnStderr: true
+      displayName: 'terraform plan'
+      env:
+          ARM_TENANT_ID: $(tenantId)
+          ARM_SUBSCRIPTION_ID: $(subscriptionId)
+          ARM_CLIENT_ID: $(clientId)
+          ARM_CLIENT_SECRET: $(clientSecret)
+          ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)
+    - publish: '$(pipeline.workspace)/$(tfFilesArtifactName)'
+      artifact: $(tfPlanArtifactName)
+- stage: apply_${{ parameters.environment }}
+  displayName: apply ${{ parameters.environment }}
+  variables:
+    - name: tfPlanArtifactName
+      value: tf-plan-${{ parameters.environment }}
+    - group: tf-sp-group-${{ parameters.environment }}
+    - group: tf-state-group-${{ parameters.environment }}
+  jobs:
+  - deployment: 'apply'
+    displayName: 'apply'
+    environment: tf-${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: none
+          - download: current
+            artifact: $(tfPlanArtifactName)
+          - task: TerraformInstaller@0
+            inputs:
+              terraformVersion: $(terraformVersion)
+          - script: |
+              chmod +x .terraform/plugins/linux_amd64/terraform-provider-*
+              terraform apply tf-plan
+              terraform output resource_group_id
+            workingDirectory: $(pipeline.workspace)/$(tfPlanArtifactName)
+            failOnStderr: true
+            displayName: 'terraform apply'
+            env:
+                ARM_TENANT_ID: $(tenantId)
+                ARM_SUBSCRIPTION_ID: $(subscriptionId)
+                ARM_CLIENT_ID: $(clientId)
+                ARM_CLIENT_SECRET: $(clientSecret)
+                ARM_ACCESS_KEY: $(tfStateStorageAccountAccessKey)

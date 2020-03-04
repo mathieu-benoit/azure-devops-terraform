@@ -1,6 +1,10 @@
-| Branch | Status |
+| phase | Status |
 |--------|--------|
-| master |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/azure-devops-terraform?branchName=master)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=113&branchName=master)|
+| prepare |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/azure-devops-terraform?branchName=master&stageName=prepare)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=113&branchName=master)|
+| plan dev |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/azure-devops-terraform?branchName=master&stageName=plan%20dev)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=113&branchName=master)|
+| apply dev |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/azure-devops-terraform?branchName=master&stageName=apply%20dev)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=113&branchName=master)|
+| plan prod |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/azure-devops-terraform?branchName=master&stageName=plan%20prod)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=113&branchName=master)|
+| apply prod |[![Build Status](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_apis/build/status/azure-devops-terraform?branchName=master&stageName=apply%20prod)](https://dev.azure.com/mabenoit-ms/MyOwnBacklog/_build/latest?definitionId=113&branchName=master)|
 
 Terraform deployment with Azure DevOps, leveraging Azure pipelines in [YAML](http://aka.ms/yaml) with [Environment](https://docs.microsoft.com/azure/devops/pipelines/yaml-schema#environment) and [Checks](https://docs.microsoft.com/azure/devops/pipelines/process/checks).
 
@@ -99,7 +103,7 @@ az pipelines show \
 
 > Note: You could repeat this Variable Groups setup above per `environment`: QA, PROD, etc.
 
-Optionaly, you could pause this pipeline by adding a manual approval step on the Environment by setting up a [Check Approval](https://docs.microsoft.com/azure/devops/pipelines/process/checks#approvals). Like defining in my [azure-pipeline.yml](azure-pipeline.yml) file, this manual approval is right after `terraform plan` and right before `terraform apply`, a good way to make sure everything will be deployed as expected.
+Optionaly, you could pause this pipeline by adding a manual approval step on the Environment by setting up a [Check Approval](https://docs.microsoft.com/azure/devops/pipelines/process/checks#approvals). This manual approval is right after `terraform plan` and right before `terraform apply`, a good way to make sure everything will be deployed as expected.
 
 # Further considerations
 
