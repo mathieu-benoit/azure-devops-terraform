@@ -64,8 +64,8 @@ GITHUB_URL=https://github.com/mathieu-benoit/azure-devops-terraform
 #If your source code is in GitHub, you may want to create by CLI your GitHub service endpoint (otherwise via the UI), you will be asked for your GitHub access token.
 SERVICE_ENDPOINT_NAME=azure-devops-terraform
 az devops service-endpoint github create \
-        --name $SERVICE_ENDPOINT_NAME \
-        --github-url $GITHUB_URL
+    --name $SERVICE_ENDPOINT_NAME \
+    --github-url $GITHUB_URL
 
 az pipelines create \
     --name $BUILD_NAME \
@@ -78,17 +78,17 @@ az pipelines create \
 #Once the pipeline is created we need to configure its associated variables, by creating 3 different Variables Groups:
 environment=dev
 az pipelines variable-group create \
-	--name tf-sp-group-$environment \
-	--authorize true \
-	--variables clientId=$TF_SP_ID clientSecret=$TF_SP_SECRET tenantId=$TENANT_ID subscriptionId=$SUBSCRIPTION_ID
+    --name tf-sp-group-$environment \
+    --authorize true \
+    --variables clientId=$TF_SP_ID clientSecret=$TF_SP_SECRET tenantId=$TENANT_ID subscriptionId=$SUBSCRIPTION_ID
 az pipelines variable-group create \
-	--name tf-state-group-$environment \
-	--authorize true \
-	--variables tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME tfStateStorageContainerName=$TFSTATE_BLOB_CONTAINER_NAME
+    --name tf-state-group-$environment \
+    --authorize true \
+    --variables tfStateStorageAccountAccessKey=$TFSTATE_STORAGE_ACCOUNT_KEY tfStateStorageAccountName=$TFSTATE_STORAGE_ACCOUNT_NAME tfStateStorageContainerName=$TFSTATE_BLOB_CONTAINER_NAME
 az pipelines variable-group create \
-	--name tf-deployment-group-$environment \
-	--authorize true \
-	--variables location=<your-location-value> resourceGroupName=<your-resource-group-name-value>
+    --name tf-deployment-group-$environment \
+    --authorize true \
+    --variables location=<your-location-value> resourceGroupName=<your-resource-group-name-value>
 
 #Let's run our first build!
 az pipelines run \
@@ -104,6 +104,90 @@ az pipelines show \
 > Note: You could repeat this Variable Groups setup above per `environment`: QA, PROD, etc.
 
 Optionaly, you could pause this pipeline by adding a manual approval step on the Environment by setting up a [Check Approval](https://docs.microsoft.com/azure/devops/pipelines/process/checks#approvals). This manual approval is right after `terraform plan` and right before `terraform apply`, a good way to make sure everything will be deployed as expected.
+
+# Optional - Protect your Terraform State files with Private Endpoints for Azure Storage
+
+Like illustrated in my blog article [Protect your Terraform State files with Private Endpoints for Azure Storage](https://alwaysupalwayson.blogspot.com/2020/03/protect-your-terraform-state-files-with.html) by running the commands below you will be able to leverage Azure Private Endpoint:
+```
+vnetName<your-vnet-name>
+subnetName=<your-subnet-name>
+privateEndpointName=<your-private-endpoint-name>
+storageAccountId=$(az storage account show -g $TFSTATE_RESOURCE_GROUP_NAME -n $TFSTATE_STORAGE_ACCOUNT_NAME --query id -o tsv)
+az network vnet subnet update -n $subnetName -g $TFSTATE_RESOURCE_GROUP_NAME --vnet-name $vnetName --disable-private-endpoint-network-policies true
+az network private-endpoint create \
+    -n $privateEndpointName \
+    -g $TFSTATE_RESOURCE_GROUP_NAME \
+    --vnet-name $vnetName  \
+    --subnet $subnetName \
+    --private-connection-resource-id $storageAccountId \
+    --group-id blob \
+    --connection-name $privateEndpointName
+az storage account update \
+    -g $TFSTATE_RESOURCE_GROUP_NAME \
+    -n $storageName \
+    --default-action Deny
+zoneName="privatelink.blob.core.windows.net"
+az network private-dns zone create \
+    -g $TFSTATE_RESOURCE_GROUP_NAME \
+    -n $zoneName
+az network private-dns link vnet create \
+    -g $TFSTATE_RESOURCE_GROUP_NAME \
+    --zone-name $zoneName \
+    -n $privateDnsName \
+    --virtual-network $vnetName \
+    --registration-enabled false
+networkInterfaceId=$(az network private-endpoint show \
+    -n $privateEndpointName \
+    -g $TFSTATE_RESOURCE_GROUP_NAME \
+    --query 'networkInterfaces[0].id' \
+    -o tsv)
+privateIpAddress=$(az resource show \
+    --ids $networkInterfaceId \
+    --api-version 2019-04-01 \
+    --query properties.ipConfigurations[0].properties.privateIPAddress \
+    -o tsv)
+az network private-dns record-set a create \
+    -n $TFSTATE_STORAGE_ACCOUNT_NAME 
+    --zone-name $zoneName 
+    -g $TFSTATE_RESOURCE_GROUP_NAME
+az network private-dns record-set a add-record \
+    --record-set-name $TFSTATE_STORAGE_ACCOUNT_NAME \
+    --zone-name $zoneName \
+    -g $TFSTATE_RESOURCE_GROUP_NAME \
+    -a $privateIpAddress
+```
+
+Furthermore, you will have to have your own Azure Pipeline agent, in my case I'm hosting it on AKS, here are the setup you will need to have to link your AKS's VNET to your TFState's VNET:
+```
+aksResourceGroupName=<your-aks-rg-name>
+aksVnetName=<your-aks-vnet-name>
+vNet1Id=$(az network vnet show \
+    -g $TFSTATE_RESOURCE_GROUP_NAME \
+    -n $vnetName \
+    --query id --out tsv)
+vNet2Id=$(az network vnet show \
+    -g $aksResourceGroupName \
+    -n $aksVnetName \
+    --query id --out tsv)
+az network vnet peering create \
+    -n tfstate-aks \
+    -g $rg \
+    --vnet-name $vnetName \
+    --remote-vnet $vNet2Id \
+    --allow-vnet-access
+az network vnet peering create \
+    -n aks-tfstate \
+    -g $aksResourceGroupName \
+    --vnet-name $aksVnetName \
+    --remote-vnet $vNet1Id \
+    --allow-vnet-access
+az network private-dns link vnet create \
+    -g $rg \
+    --zone-name $zoneName \
+    -n $privateDnsName \
+    --virtual-network $aksVnetName \
+    --registration-enabled false
+```
 
 # Further considerations
 
