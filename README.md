@@ -105,7 +105,7 @@ az pipelines show \
 
 Optionaly, you could pause this pipeline by adding a manual approval step on the Environment by setting up a [Check Approval](https://docs.microsoft.com/azure/devops/pipelines/process/checks#approvals). This manual approval is right after `terraform plan` and right before `terraform apply`, a good way to make sure everything will be deployed as expected.
 
-# Optional - Protect your Terraform State files with Private Endpoints for Azure Storage
+## Optional - Protect your Terraform State files with Private Endpoints for Azure Storage
 
 Like illustrated in my blog article [Protect your Terraform State files with Private Endpoints for Azure Storage](https://alwaysupalwayson.blogspot.com/2020/03/protect-your-terraform-state-files-with.html) by running the commands below you will be able to leverage Azure Private Endpoint:
 ```
