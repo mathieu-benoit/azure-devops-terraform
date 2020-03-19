@@ -11,7 +11,7 @@ trigger:
 pr: none
 
 variables:
-  terraformVersion: 0.12.23
+  terraformVersion: 0.12.24
   tfFilesArtifactName: 'tf-files'
   skipComponentGovernanceDetection: true
   
