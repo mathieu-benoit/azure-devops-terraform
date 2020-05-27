@@ -17,7 +17,7 @@ variables:
   
 pool:
  #vmImage: 'ubuntu-latest'
- name: myadoagent
+ name: mabenoittesttf
 
 stages:
 - stage: 'prepare'
